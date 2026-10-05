@@ -22,7 +22,7 @@ jobs:
           distribution: temurin
           java-version: '25'
       - name: mvnw verify (Failsafe *IT — Testcontainers con Postgres real)
-        run: ./mvnw -B verify
+        run: chmod +x mvnw && ./mvnw -B verify
 
   test-front:
     runs-on: ubuntu-latest
@@ -45,12 +45,13 @@ jobs:
 
   secret-scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
-        with:
-          redact: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
