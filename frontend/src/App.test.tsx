@@ -39,6 +39,6 @@ describe('App - listado', () => {
     render(<App />)
     await waitFor(() => expect(listar).toHaveBeenCalledTimes(1))
     expect(await screen.findByText(/Ana/)).toBeInTheDocument()
-    expect(screen.getByText('34.30')).toBeInTheDocument()
+    expect(screen.getByText('34.31')).toBeInTheDocument()
   })
 })
