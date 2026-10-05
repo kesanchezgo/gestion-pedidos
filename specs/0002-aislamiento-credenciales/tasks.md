@@ -31,7 +31,7 @@
 
 ## Phase 5: Polish
 
-- [ ] T040 Actualizar checkboxes de este `tasks.md`, commit `test:`/`docs:` en rama `0002-aislamiento-credenciales`, sin push aún
+- [x] T040 Actualizar checkboxes de este `tasks.md`, commit `test:`/`docs:` en rama `0002-aislamiento-credenciales`, sin push aún
 - [ ] T041 Registrar en §11/§14 solo con evidencia obtenida (sin inflar estados)
 
 ## Dependencies
