@@ -12,6 +12,9 @@ permissions:
 jobs:
   test-java:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -19,7 +22,7 @@ jobs:
           distribution: temurin
           java-version: '25'
       - name: mvnw verify (Failsafe *IT — Testcontainers con Postgres real)
-        run: ./mvnw -B verify
+        run: chmod +x mvnw && ./mvnw -B verify
 
   test-front:
     runs-on: ubuntu-latest
@@ -42,6 +45,9 @@ jobs:
 
   secret-scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
