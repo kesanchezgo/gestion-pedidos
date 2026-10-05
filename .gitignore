@@ -1,0 +1,18 @@
+# entorno / secretos
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# backend
+target/
+*.log
+
+# frontend
+node_modules/
+dist/
+
+# IDE / SO
+.idea/
+.vscode/
+.DS_Store
