@@ -1,50 +1,45 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# gestión-pedidos Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-first (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Ninguna línea de código de producto sin una spec aprobada por un humano. Todo cambio funcional es una spec versionada en `specs/NNNN-*` con criterios de aceptación ejecutables. Las specs son el contrato; el código las implementa, no las redefine.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Test-First y verificación con infraestructura real (NON-NEGOTIABLE)
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Los tests acompañan o preceden al código. La integración **no se simula con mocks de la BD**: los tests de integración corren contra **Postgres real vía Testcontainers**. Un cambio sin sus tests (y sin los gates verdes) no existe.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. CI es el juez (el agente no se auto-verifica)
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+La verificación vive fuera del alcance del agente: CI desde checkout limpio, ramas protegidas, el agente no edita `.github/workflows/` ni tests críticos sin revisión, no se aprueba ni hace merge de su PR. Prohibido "arreglar" un fallo borrando el test, bajando umbrales o añadiendo exclusiones sin justificación.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Privilegio mínimo y secretos fuera del contexto
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Secretos nunca en el repo ni en logs (gitleaks en pre-commit y CI). Pruebas de aislamiento con **valores señuelo**, nunca claves reales. La master key del gateway es una excepción documentada (§11 del flujo): mientras se use, no se declara cumplido el mínimo de privilegio.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Simplicidad con intención (YAGNI + ADR)
+
+Empezar simple: la estructura mínima que satisfaga la spec. Cualquier decisión estructural (patrón, esquema, dependencia nueva de peso) se registra como ADR en `docs/adr/` antes de implementarse. La complejidad se gana, no se acumula.
+
+## Additional Constraints — Seguridad y calidad
+
+- **Stack fijado**: Spring Boot 4.1.1 (JDK 25), React 19 + Vite 8 + TS, Postgres 18, pin por `.mise.toml` y lockfiles (`pnpm-lock.yaml`, Maven wrapper).
+- **Validación de entrada** en la frontera (jakarta.validation) y **errores con ProblemDetail (RFC 7807)**; nunca exponer stack traces.
+- **Autorización**: si la feature toca recursos de usuario, los tests incluyen el caso negativo (no-dueño denegado). En el piloto actual no hay auth (ver supuestos de la spec).
+- **Dependencias**: escaneo de secretos + Trivy en CI; actualizar solo con revisión.
+
+## Development Workflow — Gates de calidad
+
+1. `spec-kit`: constitution (1×) → `/speckit-specify` → **aprobación humana de la spec** → plan → tasks.
+2. Rama por cambio coherente = 1 PR (>400 líneas = alerta, no criterio). Conventional Commits.
+3. Gates obligatorios antes del PR: backend `mise exec -- ./mvnw verify` (Failsafe ejecuta los `*IT`) · frontend `pnpm lint && pnpm typecheck && pnpm test && pnpm build` · `gitleaks dir .`.
+4. Revisión humana proporcional al riesgo; el agente nunca se auto-aprueba.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- Esta constitución supone toda otra práctica del proyecto; sus enmiendas requieren diff, aprobación humana y fecha.
+- Cada PR declara su cumplimiento (reviewer lo verifica); la complejidad añadida debe justificarse contra el principio V.
+- La guía de runtime para el agente vive en `AGENTS.md` (política de carga: §4.5 del flujo).
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-10-04 | **Last Amended**: 2026-10-04
